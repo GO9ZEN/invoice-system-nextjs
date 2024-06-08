@@ -44,6 +44,7 @@ export default function InvoiceList() {
             <TableHead>Customer Name</TableHead>
             <TableHead>Customer Address</TableHead>
             <TableHead>Customer Number</TableHead>
+            <TableHead>Details Id</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="bg-slate-100">
@@ -58,6 +59,7 @@ export default function InvoiceList() {
               <TableCell>{row.cusName}</TableCell>
               <TableCell>{row.cusAddress}</TableCell>
               <TableCell className="text-right">{row.cusNumber}</TableCell>
+              <TableCell className="text-right">{row.itemPrice}</TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -40,18 +40,12 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 
 import {
+  deleteInvoicesDetailsId,
   deleteInvoicesId,
-  getInvoices,
+  getInvoice,
   insertInvoice,
-  updateInvoices,
+  updateInvoice,
 } from "./invoiceActions";
-
-// import {
-//   deleteItemId,
-//   getItems,
-//   insertItem,
-//   updateItems,
-// } from "./item/itemActions";
 
 import { useRouter } from "next/navigation";
 import InvoiceHeader from "./invoiceHeader";
@@ -59,18 +53,18 @@ import InvoiceFooter from "./invoiceFooter";
 
 const invoiceFormSchema = z.object({
   id: z.coerce.number().optional(),
-  invoiceDate: z.date().pipe(z.coerce.string()),
+  // invoiceDate: z.date().pipe(z.coerce.string()),
+  invoiceDate: z.coerce.string(),
   cusName: z.string(),
   cusAddress: z.string(),
   cusNumber: z.string(),
-  item: z
+  invoicedetails: z
     .array(
       z.object({
-        // value: z.string(),
         itemName: z.string(),
         itemPrice: z.coerce.number(),
         itemQty: z.coerce.number(),
-        itemAmount: z.coerce.number(),
+        itemAmount: z.coerce.number().optional(),
       })
     )
     .optional(),
@@ -92,7 +86,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
   const { setValue } = form;
 
   const { fields, append, remove } = useFieldArray({
-    name: "item",
+    name: "invoicedetails",
     control: form.control,
   });
 
@@ -116,7 +110,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
     setid(invoiceid);
     if (invoiceid != 0) {
       const fetchSt = async () => {
-        const res = await getInvoices(invoiceid);
+        const res = await getInvoice(invoiceid);
         console.log(res);
         if (res.data) {
           form.reset(res.data);
@@ -141,7 +135,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
           console.log(e);
         });
     } else {
-      updateInvoices(values)
+      updateInvoice(values)
         .then((res) => {
           console.log(res);
         })
@@ -161,6 +155,17 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
         console.log(e);
       });
   }
+
+  async function handleDeleteDetails() {
+    deleteInvoicesDetailsId(id)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+
   ///////////////////////////////////// INVOICE ACTIONS - END /////////////////////////////////////
 
   return (
@@ -317,7 +322,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
                             <FormField
                               control={form.control}
                               // name="itemName"
-                              name={`item.${index}.itemName`}
+                              name={`invoicedetails.${index}.itemName`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -335,7 +340,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
                           <TableCell>
                             <FormField
                               control={form.control}
-                              name={`item.${index}.itemPrice`}
+                              name={`invoicedetails.${index}.itemPrice`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -358,7 +363,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
                           <TableCell>
                             <FormField
                               control={form.control}
-                              name={`item.${index}.itemQty`}
+                              name={`invoicedetails.${index}.itemQty`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -381,7 +386,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
                           <TableCell>
                             <FormField
                               control={form.control}
-                              name={`item.${index}.itemAmount`}
+                              name={`invoicedetails.${index}.itemAmount`}
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
@@ -391,7 +396,7 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
                                       type="number"
                                       defaultValue={total}
                                       // value={total}
-                                      disabled
+                                      // disabled
                                       {...field}
                                     />
                                   </FormControl>
@@ -406,7 +411,10 @@ export function InvoiceForm({ invoiceid = 0 }: Invoiceprops) {
                               variant="destructive"
                               size="sm"
                               className="mt-2"
-                              onClick={() => remove(index)}
+                              onClick={() => {
+                                remove(index);
+                                handleDeleteDetails;
+                              }}
                             >
                               Remove Number
                             </Button>
