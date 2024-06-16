@@ -25,9 +25,9 @@ export default function Header() {
           <Link href="/invoices">
             <h1 className="hover:text-blue-500">Invoices</h1>
           </Link>
-          {/* <Link href="/items">
-            <h1 className="hover:text-blue-500">Items</h1>
-          </Link> */}
+          <Link href="/expenses">
+            <h1 className="hover:text-blue-500">Expenses</h1>
+          </Link>
         </div>
 
         <div className="md:hidden flex gap-12 md:text-lg text-base font-semibold">

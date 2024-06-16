@@ -5,36 +5,24 @@ import Database from "better-sqlite3";
 const maindbFileName = "app.db";
 
 ///////////////////////// INSERT DATA /////////////////////////
-export const insertInvoice = async (data: any) => {
+export const insertExpenses = async (data: any) => {
   console.log("data", data);
   const db = new Database(maindbFileName);
   db.pragma("journal_mode = WAL");
 
-  const stmt = db.prepare(
-    "INSERT INTO invoice (invoiceDate, cusName, cusAddress, cusNumber) VALUES (?, ?, ?, ?)"
-  );
+  const stmt = db.prepare("INSERT INTO expenses (date) VALUES (?)");
 
-  const info = stmt.run(
-    data.invoiceDate,
-    data.cusName,
-    data.cusAddress,
-    data.cusNumber
-  );
+  const info = stmt.run(data.date);
 
   const lastInsertRowid = info.lastInsertRowid;
   //save invoice details
 
-  for (const row of data.invoicedetails) {
+  for (const row of data.expensesdetails) {
     const stmt = db.prepare(
-      "INSERT INTO invoicedetails (invoiceId, itemName, itemPrice, itemQty) VALUES (?, ?, ?, ?)"
+      "INSERT INTO expensesdetails (expensesId, name, price, qty) VALUES (?, ?, ?, ?)"
     );
 
-    const info2 = stmt.run(
-      lastInsertRowid,
-      row.itemName,
-      row.itemPrice,
-      row.itemQty
-    );
+    const info2 = stmt.run(lastInsertRowid, row.name, row.price, row.qty);
   }
 
   db.close();
@@ -51,11 +39,11 @@ export const insertInvoice = async (data: any) => {
 };
 
 ///////////////////////// GET DATA /////////////////////////
-export const getInvoiceList = async () => {
+export const getExpensesList = async () => {
   const db = new Database(maindbFileName);
   db.pragma("journal_mode = WAL");
 
-  const res = db.prepare("SELECT * from invoice").all();
+  const res = db.prepare("SELECT * from expenses").all();
 
   db.close();
 
@@ -67,17 +55,17 @@ export const getInvoiceList = async () => {
 };
 
 ///////////////////////// GET DATA BY ID /////////////////////////
-export const getInvoice = async (id: number) => {
+export const getExpense = async (id: number) => {
   const db = new Database(maindbFileName);
   db.pragma("journal_mode = WAL");
 
-  const res = db.prepare("SELECT * FROM invoice WHERE id = ?").get(id);
+  const res = db.prepare("SELECT * FROM expenses WHERE id = ?").get(id);
 
   const res1 = db
-    .prepare("SELECT * FROM invoicedetails WHERE invoiceId = ?")
+    .prepare("SELECT * FROM expensesdetails WHERE expensesId = ?")
     .all(id);
 
-  res["invoicedetails"] = res1;
+  res["expensesdetails"] = res1;
 
   console.log("PPP", res);
 
@@ -91,42 +79,29 @@ export const getInvoice = async (id: number) => {
 };
 
 ///////////////////////// UPDATE DATA BY ID /////////////////////////
-export const updateInvoice = async (invoice: any) => {
+export const updateExpense = async (expenses: any) => {
   const db = new Database(maindbFileName);
   db.pragma("journal_mode = WAL");
-  console.log("invoice", invoice);
+  console.log("expenses", expenses);
   try {
     const res = db
-      .prepare(
-        "UPDATE invoice SET invoiceDate=?, cusName=?, cusAddress=?, cusNumber=? WHERE id=?"
-      )
-      .run(
-        invoice.invoiceDate,
-        invoice.cusName,
-        invoice.cusAddress,
-        invoice.cusNumber,
-        invoice.id
-      );
+      .prepare("UPDATE expenses SET date=? WHERE id=?")
+      .run(expenses.date, expenses.id);
 
     //delete al rows from invoicedetails table
     const res1 = db
-      .prepare("DELETE FROM invoicedetails WHERE invoiceid = ?")
-      .run(invoice.id);
+      .prepare("DELETE FROM expensesdetails WHERE expensesId = ?")
+      .run(expenses.id);
 
     //insert details in a loop
     // as insert command
 
-    for (const row of invoice.invoicedetails) {
+    for (const row of expenses.expensesdetails) {
       const stmt = db.prepare(
-        "INSERT INTO invoicedetails  (invoiceId, itemName, itemPrice, itemQty) VALUES (?, ?, ?, ?)"
+        "INSERT INTO expensesdetails (expensesId, name, price, qty) VALUES (?, ?, ?, ?)"
       );
 
-      const info2 = stmt.run(
-        invoice.id,
-        row.itemName,
-        row.itemPrice,
-        row.itemQty
-      );
+      const info2 = stmt.run(expenses.id, row.name, row.price, row.qty);
     }
 
     db.close();
@@ -146,11 +121,11 @@ export const updateInvoice = async (invoice: any) => {
 };
 
 ///////////////////////// DELETE DATA BY ID /////////////////////////
-export const deleteInvoicesId = async (id: any) => {
+export const deleteExpenseId = async (id: any) => {
   const db = new Database(maindbFileName);
   db.pragma("journal_mode = WAL");
 
-  const res = db.prepare("DELETE FROM invoice WHERE id = ?").run(id);
+  const res = db.prepare("DELETE FROM expenses WHERE id = ?").run(id);
 
   db.close();
 
@@ -162,11 +137,11 @@ export const deleteInvoicesId = async (id: any) => {
 };
 
 ///////////////////////// DELETE DATA BY ID in INVOICEDETAILS /////////////////////////
-export const deleteInvoicesDetailsId = async (id: any) => {
+export const deleteExpensesDetailsId = async (id: any) => {
   const db = new Database(maindbFileName);
   db.pragma("journal_mode = WAL");
 
-  const res = db.prepare("DELETE FROM invoicedetails WHERE id = ?").run(id);
+  const res = db.prepare("DELETE FROM expensesdetails WHERE id = ?").run(id);
 
   db.close();
 

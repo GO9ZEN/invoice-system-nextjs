@@ -7,6 +7,10 @@ export default function Home() {
       <Link href="/invoices">
         <Button className="bg-green-600">Invoices</Button>
       </Link>
+
+      <Link href="/expenses">
+        <Button className="bg-green-600">Expenses</Button>
+      </Link>
     </div>
   );
 }
